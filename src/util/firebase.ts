@@ -12,12 +12,12 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const firebaseAuth = getAuth(app);
 
-export { app, auth };
+export { app, firebaseAuth };
 
 export const handleGoogleLogin = async () => {
   const provider = new GoogleAuthProvider(); // provider 구글 설정
-  const data = await signInWithPopup(auth, provider); // 팝업창 띄워서 로그인
+  const data = await signInWithPopup(firebaseAuth, provider); // 팝업창 띄워서 로그인
   return data;
 };
