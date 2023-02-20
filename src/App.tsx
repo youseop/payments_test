@@ -33,7 +33,7 @@ function App() {
         onClickLogin={onClickLogin}
         onClickLogout={onClickLogout}
       />
-      <MainRoutes />
+      <MainRoutes user={user} />
       <Footer />
     </div>
   );

@@ -3,11 +3,15 @@ import {
   PaymentWidgetInstance,
 } from "@tosspayments/payment-widget-sdk";
 import classNames from "classnames";
+import { User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import uuid from "react-uuid";
 import "../css/MainPage.scss";
 
-const MainPage = () => {
+interface ProfileProps {
+  user: User | undefined;
+}
+const MainPage = ({ user }: ProfileProps) => {
   const clientKey = process.env.REACT_APP_CLIENT_KEY;
   const secretKey = process.env.REACT_APP_SECRET_KEY;
 
@@ -39,18 +43,20 @@ const MainPage = () => {
   };
 
   const requestPayment = () => {
-    if (paymentWidget !== undefined) {
+    if (user !== undefined && paymentWidget !== undefined) {
+      const orderId = uuid();
       paymentWidget.requestPayment({
-        orderId: "AD8aZDpbzXs4EQa-UkIX6",
+        orderId: orderId,
         orderName: "토스 티셔츠 외 2건",
         successUrl: "http://localhost:3000/success",
         failUrl: "http://localhost:3000/fail",
-        customerEmail: "customer123@gmail.com",
-        customerName: "김토스",
+        customerEmail: user.email,
+        customerName: user.displayName,
       });
       togglePaymentWidget();
     } else {
-      alert("Error: paymentWidget is not loaded");
+      if (user === undefined) alert("Error: invalid user info");
+      else alert("Error: paymentWidget is not loaded");
     }
   };
 
