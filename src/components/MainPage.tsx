@@ -2,6 +2,7 @@ import {
   loadPaymentWidget,
   PaymentWidgetInstance,
 } from "@tosspayments/payment-widget-sdk";
+import classNames from "classnames";
 import { useEffect, useState } from "react";
 import uuid from "react-uuid";
 import "../css/MainPage.scss";
@@ -14,6 +15,8 @@ const MainPage = () => {
     PaymentWidgetInstance | undefined
   >();
   const [customerKey, setCustomerKey] = useState<string>(uuid());
+  const [isPaymentWidgetOpen, setIsPaymentWidgetOpen] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (clientKey !== undefined) {
@@ -23,27 +26,84 @@ const MainPage = () => {
     }
   }, [clientKey, customerKey]);
 
+  const togglePaymentWidget = () => {
+    if (!isPaymentWidgetOpen) {
+      if (paymentWidget !== undefined) {
+        paymentWidget.renderPaymentMethods("#payment-widget", 15000);
+        paymentWidget.renderAgreement("#agreement");
+      } else {
+        alert("Error: paymentWidget is not loaded");
+      }
+    }
+    setIsPaymentWidgetOpen(!isPaymentWidgetOpen);
+  };
+
+  const requestPayment = () => {
+    if (paymentWidget !== undefined) {
+      paymentWidget.requestPayment({
+        orderId: "AD8aZDpbzXs4EQa-UkIX6",
+        orderName: "토스 티셔츠 외 2건",
+        successUrl: "http://localhost:3000/success",
+        failUrl: "http://localhost:3000/fail",
+        customerEmail: "customer123@gmail.com",
+        customerName: "김토스",
+      });
+      togglePaymentWidget();
+    } else {
+      alert("Error: paymentWidget is not loaded");
+    }
+  };
+
+  const renderModal = (
+    isPaymentWidgetOpen: boolean,
+    closeModal: () => void
+  ) => {
+    const hidden = !isPaymentWidgetOpen;
+    return (
+      <div
+        className={classNames("modal-wrapper", { hidden })}
+        onClick={(e) => {
+          e.stopPropagation();
+          closeModal();
+        }}
+      >
+        <div className="modal-background" />
+        <div
+          className="modal-content"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <div className="content" id={"payment-widget"}></div>
+          <div className="content" id={"agreement"}></div>
+          <div className="btn-wrapper">
+            <div className="btn" onClick={requestPayment}>
+              결제하기
+            </div>
+            <div className="btn" onClick={closeModal}>
+              Close
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="mainpage">
       <h1>toss payments</h1>
-      <div>{clientKey}</div>
-      <div>{secretKey}</div>
-      <div>{customerKey}</div>
+      <div>clientkey: {clientKey}</div>
+      <div>secretKey: {secretKey}</div>
+      <div>customerKey: {customerKey}</div>
       <div>
         {paymentWidget
           ? "paymentWidget is loaded"
           : "paymentWidget is not loaded yet"}
       </div>
-      <div
-        onClick={() => {
-          paymentWidget?.renderAgreement("#agreement");
-          paymentWidget?.renderPaymentMethods("#payment-method", 15000);
-        }}
-      >
+      <div onClick={togglePaymentWidget} className="btn">
         display payment widget
       </div>
-      <div id="payment-method"></div>
-      <div id="agreement"></div>
+      {renderModal(isPaymentWidgetOpen, togglePaymentWidget)}
     </div>
   );
 };
