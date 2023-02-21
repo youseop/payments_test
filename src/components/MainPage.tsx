@@ -18,17 +18,16 @@ const MainPage = ({ user }: ProfileProps) => {
   const [paymentWidget, setPaymentWidget] = useState<
     PaymentWidgetInstance | undefined
   >();
-  const [customerKey, setCustomerKey] = useState<string>(uuid());
   const [isPaymentWidgetOpen, setIsPaymentWidgetOpen] =
     useState<boolean>(false);
 
   useEffect(() => {
-    if (clientKey !== undefined) {
-      loadPaymentWidget(clientKey, customerKey).then((paymentWidget) => {
+    if (clientKey !== undefined && user !== undefined) {
+      loadPaymentWidget(clientKey, user.uid).then((paymentWidget) => {
         setPaymentWidget(paymentWidget);
       });
     }
-  }, [clientKey, customerKey]);
+  }, [clientKey, user]);
 
   const togglePaymentWidget = () => {
     if (!isPaymentWidgetOpen) {
@@ -48,8 +47,8 @@ const MainPage = ({ user }: ProfileProps) => {
       paymentWidget.requestPayment({
         orderId: orderId,
         orderName: "토스 티셔츠 외 2건",
-        successUrl: "http://localhost:3000/success",
-        failUrl: "http://localhost:3000/fail",
+        successUrl: "https://localhost:3000/success",
+        failUrl: "https://localhost:3000/fail",
         customerEmail: user.email,
         customerName: user.displayName,
       });
@@ -100,7 +99,6 @@ const MainPage = ({ user }: ProfileProps) => {
       <h1>toss payments</h1>
       <div>clientkey: {clientKey}</div>
       <div>secretKey: {secretKey}</div>
-      <div>customerKey: {customerKey}</div>
       <div>
         {paymentWidget
           ? "paymentWidget is loaded"

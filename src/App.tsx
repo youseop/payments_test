@@ -2,14 +2,26 @@ import "./css/App.scss";
 import Navbar from "./components/Navbar";
 import MainRoutes from "./Routes";
 import Footer from "./components/Footer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { firebaseAuth, handleGoogleLogin } from "./util/firebase";
 import { signOut, User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 function App() {
-  const [user, setUser] = useState<User | undefined>();
+  const [user, setUser] = useState<User | undefined>(
+    firebaseAuth.currentUser ?? undefined
+  );
   const navigate = useNavigate();
+
+  useEffect(() => {
+    firebaseAuth.onAuthStateChanged(function (user) {
+      if (user) {
+        setUser(user);
+      } else {
+        // No user is signed in.
+      }
+    });
+  }, []);
 
   const onClickLogin = async () => {
     const userData = await handleGoogleLogin();
